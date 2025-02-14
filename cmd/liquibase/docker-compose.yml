@@ -1,0 +1,27 @@
+version: "3.8"
+
+# docker compose to run
+# postgres + liquibase migration
+# for development purposes mostly
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  liquibase:
+    build: ./liquibase
+    depends_on:
+      - postgres
+    volumes:
+      - ./liquibase/migrations:/liquibase/migrations
+
+volumes:
+  pgdata:
