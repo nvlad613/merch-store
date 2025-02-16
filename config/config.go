@@ -13,14 +13,15 @@ import (
 type Config struct {
 	Database DatabaseConnection
 	Logger   zap.Config
-	Server   ServerParams
+	Server   Server
 }
 
-type ServerParams struct {
-	Hostname           string `koanf:"host"`
-	Port               int    `koanf:"port"`
-	IdleTimeoutSec     int    `koanf:"idle-timeout"`
-	ShutdownTimeoutSec int    `koanf:"shutdown-timeout"`
+type Server struct {
+	Hostname           string  `koanf:"host"`
+	Port               int     `koanf:"port"`
+	Auth               JwtAuth `koanf:"auth"`
+	IdleTimeoutSec     int     `koanf:"idle-timeout"`
+	ShutdownTimeoutSec int     `koanf:"shutdown-timeout"`
 }
 
 type DatabaseConnection struct {
@@ -34,6 +35,11 @@ type DatabaseConnection struct {
 type BasicAuth struct {
 	Login    string `koanf:"login"`
 	Password string `koanf:"password"`
+}
+
+type JwtAuth struct {
+	Method string `koanf:"signing-algorithm"`
+	Key    string `koanf:"signing-key"`
 }
 
 func Load() (Config, error) {
@@ -60,7 +66,7 @@ func Load() (Config, error) {
 	var (
 		loggerConfig zap.Config
 		dbConfig     DatabaseConnection
-		serverConfig ServerParams
+		serverConfig Server
 	)
 	if err := k.Unmarshal("application.db", &dbConfig); err != nil {
 		return zero, fmt.Errorf("failed to unmarshal db configuration: %w", err)
