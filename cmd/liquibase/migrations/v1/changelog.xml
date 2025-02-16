@@ -7,7 +7,7 @@
 
     <include file="1_create_table_users.sql" relativeToChangelogFile="true"/>
     <include file="2_create_table_transactions.sql" relativeToChangelogFile="true"/>
-    <include file="3_create_idx_on_transactions_user_ids.sql" relativeToChangelogFile="true"/>
-    <include file="4_create_table_merch.sql" relativeToChangelogFile="true"/>
+    <include file="3_create_idx_on_transaction_user_ids.sql" relativeToChangelogFile="true"/>
+    <include file="4_table_create_merch.sql" relativeToChangelogFile="true"/>
     <include file="5_table_create_user_merch.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -17,11 +17,11 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   liquibase:
-    build: ./liquibase
+    build: .
     depends_on:
       - postgres
     volumes:
-      - ./liquibase/migrations:/liquibase/migrations
+      - ./migrations:/liquibase/migrations
 
 volumes:
   pgdata:
