@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -55,4 +56,8 @@ func NewServer(
 func (s *Server) Start() error {
 	addr := fmt.Sprintf("%s:%d", s.conf.Hostname, s.conf.Port)
 	return s.inner.Start(addr)
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.inner.Shutdown(ctx)
 }

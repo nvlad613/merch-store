@@ -9,7 +9,7 @@ import (
 
 type Service interface {
 	MakePurchase(username string, productName string, quantity int, ctx context.Context) error
-	GetUserInventory(username string, ctx context.Context) ([]InventoryItem, error)
+	GetUserInventory(userId int, ctx context.Context) ([]InventoryItem, error)
 }
 
 type ServiceImpl struct {
@@ -29,17 +29,16 @@ func New(
 
 func (s ServiceImpl) MakePurchase(username string, productName string, quantity int, ctx context.Context) error {
 	purchase := Purchase{
-		Username:    username,
 		ProductName: productName,
 		Timestamp:   s.timeProvider.Now(),
 		Quantity:    quantity,
 	}
 
-	return s.repository.MakePurchase(purchase, ctx)
+	return s.repository.MakePurchase(purchase, username, ctx)
 }
 
-func (s ServiceImpl) GetUserInventory(username string, ctx context.Context) ([]InventoryItem, error) {
-	purchases, err := s.repository.GetUserPurchases(username, ctx)
+func (s ServiceImpl) GetUserInventory(userId int, ctx context.Context) ([]InventoryItem, error) {
+	purchases, err := s.repository.GetUserPurchases(userId, ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,6 @@ package balance
 
 import (
 	"merch-store/internal/domain/balance/transaction_type"
-	"time"
 )
 
 type TransactionsReport struct {
@@ -14,6 +13,5 @@ type TransactionsReport struct {
 type Transaction struct {
 	Type        transaction_type.TransactionType
 	Participant string
-	Timestamp   time.Time
 	Amount      int
 }

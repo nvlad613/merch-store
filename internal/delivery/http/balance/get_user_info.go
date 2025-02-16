@@ -35,7 +35,7 @@ func (r *Router) GetUserInfoHandler(c echo.Context) error {
 		return httputil.SendError(http.StatusInternalServerError, "internal error", c)
 	}
 
-	inventory, err := r.storeService.GetUserInventory(userDetails.Username, ctx)
+	inventory, err := r.storeService.GetUserInventory(userDetails.Id, ctx)
 	if err != nil {
 		r.logger.Errorw(
 			"failed to make get user inventory",
