@@ -1,8 +1,11 @@
 package balance
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Repository interface {
-	MakeTransaction(transaction Transaction, ctx context.Context) error
-	GetFinancialReport(username string, ctx context.Context) (*TransactionsReport, error)
+	MakeCoinTransaction(fromUser string, toUser string, amount int, timestamp time.Time, ctx context.Context) error
+	GetTransactionsReport(username string, ctx context.Context) (*TransactionsReport, error)
 }

@@ -37,11 +37,11 @@ func (r *Router) PostAuthorizeUserHandler(c echo.Context) error {
 		return httputil.SendError(http.StatusBadRequest, err.Error(), c)
 	}
 
-	userModel := auth.User{
+	creds := auth.Credentials{
 		Username: requestBody.Username,
 		Password: requestBody.Password,
 	}
-	token, err := r.authService.MakeAuth(userModel, ctx)
+	token, err := r.authService.MakeAuth(creds, ctx)
 	switch {
 	case errors.Is(err, auth.WrongCredentialsError):
 		return httputil.SendError(http.StatusForbidden, err.Error(), c)

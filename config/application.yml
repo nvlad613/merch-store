@@ -3,10 +3,14 @@ application:
   version: 1
 
   server:
-    host: backend
+    host: localhost
     port: 8080
     idle-timeout: 5
     shutdown-timeout: 3
+    auth:
+      signing-algorithm: hs256
+      signing-key: ???
+      exp-sec: 1800
 
   db:
     host: postgres

@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type UserDetails struct {
-	Username string `mapstructure:"name"`
-	Id       int    `mapstructure:"id"`
+	Username string `mapstructure:"username"`
+	Id       int    `mapstructure:"user_id"`
 }
 
 func SendError(status int, details string, c echo.Context) error {
@@ -38,4 +40,16 @@ func GetUserDetails(c echo.Context) (UserDetails, error) {
 	}
 
 	return userDetails, nil
+}
+
+func JwtErrorHandler(ctx echo.Context, err error) error {
+	var details = "authorization error"
+	switch {
+	case errors.Is(err, echojwt.ErrJWTMissing):
+		details = "jwt is missing"
+	case errors.Is(err, echojwt.ErrJWTInvalid):
+		details = "jwt is invalid"
+	}
+
+	return SendError(http.StatusUnauthorized, details, ctx)
 }

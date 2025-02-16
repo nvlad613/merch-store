@@ -40,6 +40,7 @@ type BasicAuth struct {
 type JwtAuth struct {
 	Method string `koanf:"signing-algorithm"`
 	Key    string `koanf:"signing-key"`
+	ExpSec int    `koanf:"exp-sec"`
 }
 
 func Load() (Config, error) {

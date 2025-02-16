@@ -1,19 +1,29 @@
 package http
 
 import (
-	"errors"
+	"fmt"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"merch-store/config"
+	authdelivery "merch-store/internal/delivery/http/auth"
+	balancedelivery "merch-store/internal/delivery/http/balance"
+	storedelivery "merch-store/internal/delivery/http/store"
+	"merch-store/internal/domain/auth"
+	"merch-store/internal/domain/balance"
+	"merch-store/internal/domain/store"
 	"merch-store/pkg/httputil"
-	"net/http"
 )
 
 type Server struct {
+	inner *echo.Echo
+	conf  config.Server
 }
 
 func NewServer(
+	authService auth.Service,
+	balanceService balance.Service,
+	storeService store.Service,
 	logger *zap.Logger,
 	conf config.Server,
 ) *Server {
@@ -23,22 +33,26 @@ func NewServer(
 	jwtMiddlewareFunc := echojwt.WithConfig(echojwt.Config{
 		SigningKey:    []byte(conf.Auth.Key),
 		SigningMethod: conf.Auth.Method,
-		ErrorHandler: func(ctx echo.Context, err error) error {
-			var details = "authorization error"
-			switch {
-			case errors.Is(err, echojwt.ErrJWTMissing):
-				details = "jwt is missing"
-			case errors.Is(err, echojwt.ErrJWTInvalid):
-				details = "jwt is invalid"
-			}
-
-			return httputil.SendError(http.StatusUnauthorized, details, ctx)
-		},
+		ErrorHandler:  httputil.JwtErrorHandler,
 	})
 
-	return nil
+	authRouter := authdelivery.NewRouter(logger, authService)
+	e.POST("/api/auth", authRouter.PostAuthorizeUserHandler)
+
+	balanceRouter := balancedelivery.NewRouter(logger, balanceService, storeService)
+	e.GET("/api/info", balanceRouter.GetUserInfoHandler, jwtMiddlewareFunc)
+	e.POST("/api/sendCoin", balanceRouter.PostSendCoinsHandler, jwtMiddlewareFunc)
+
+	storeRouter := storedelivery.NewRouter(logger, storeService)
+	e.GET("/api/buy/:item", storeRouter.GetBuyMerchHandler, jwtMiddlewareFunc)
+
+	return &Server{
+		inner: e,
+		conf:  conf,
+	}
 }
 
 func (s *Server) Start() error {
-	return nil
+	addr := fmt.Sprintf("%s:%d", s.conf.Hostname, s.conf.Port)
+	return s.inner.Start(addr)
 }
