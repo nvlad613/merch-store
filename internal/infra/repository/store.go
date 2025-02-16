@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/uptrace/bun"
 	"merch-store/internal/domain"
+	"merch-store/internal/domain/balance"
 	"merch-store/internal/domain/store"
 )
 
@@ -39,7 +40,7 @@ func (r *RepositoryImpl) MakePurchase(purchase store.Purchase, username string, 
 				return domain.UserNotFoundError
 			}
 
-			return err
+			return balance.NotEnoughCoinsError
 		}
 
 		purchaseEntity := Purchase{
@@ -61,11 +62,11 @@ func (r *RepositoryImpl) GetUserPurchases(userId int, ctx context.Context) ([]st
 	var purchases []PurchasePreview
 
 	err := r.db.NewSelect().
-		Table("purchases as p").
+		TableExpr("purchases as p").
 		ColumnExpr("p.quantity, p.occurred, m.name as merch_name").
-		Where("id = ?", userId).
+		Where("p.user_id = ?", userId).
 		Join("join merch as m").
-		JoinOn("purchases.merch_id = m.id").
+		JoinOn("p.merch_id = m.id").
 		Scan(ctx, &purchases)
 	if err != nil {
 		return nil, err

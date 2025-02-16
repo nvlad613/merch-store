@@ -17,7 +17,7 @@ type UserDetails struct {
 
 func SendError(status int, details string, c echo.Context) error {
 	return c.JSON(status, echo.Map{
-		"error": details,
+		"errors": details,
 	})
 }
 
@@ -51,5 +51,5 @@ func JwtErrorHandler(ctx echo.Context, err error) error {
 		details = "jwt is invalid"
 	}
 
-	return SendError(http.StatusUnauthorized, details, ctx)
+	return SendError(http.StatusUnauthorized, details+" "+err.Error(), ctx)
 }

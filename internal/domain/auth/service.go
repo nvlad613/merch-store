@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+const (
+	coinsStartValue = 1000
+)
+
 type Service interface {
 	MakeAuth(creds Credentials, ctx context.Context) (JwtToken, error)
 }
@@ -62,7 +66,7 @@ func (s *ServiceImpl) MakeAuth(creds Credentials, ctx context.Context) (JwtToken
 			return s.genJwt(creds.Username, userId)
 		}
 
-		return "", err
+		return "", fmt.Errorf("get user from db: %w", err)
 	}
 
 	if bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(creds.Password)) != nil {
@@ -81,6 +85,7 @@ func (s *ServiceImpl) createUser(creds Credentials, ctx context.Context) (int, e
 	id, err := s.repository.CreateUser(User{
 		Username:     creds.Username,
 		PasswordHash: hash,
+		Coins:        coinsStartValue,
 	}, ctx)
 	if err != nil {
 		return 0, fmt.Errorf("create user: %w", err)

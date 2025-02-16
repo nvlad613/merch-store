@@ -46,6 +46,11 @@ func (r *Router) PostAuthorizeUserHandler(c echo.Context) error {
 	case errors.Is(err, auth.WrongCredentialsError):
 		return httputil.SendError(http.StatusForbidden, err.Error(), c)
 	case err != nil:
+		r.logger.Errorw(
+			"failed to auth user",
+			"error", err, "user", requestBody.Username,
+		)
+
 		return httputil.SendError(http.StatusInternalServerError, "internal error", c)
 	}
 

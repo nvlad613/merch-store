@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"merch-store/internal/domain"
 	"merch-store/internal/domain/balance"
 	"time"
@@ -30,11 +29,7 @@ func (r *RepositoryImpl) MakeCoinTransaction(
 			Exec(ctx, &fromUserId)
 
 		if err != nil {
-			if isCheckError(err) {
-				return balance.NotEnoughCoinsError
-			}
-
-			return err
+			return balance.NotEnoughCoinsError
 		}
 
 		_, err = tx.NewUpdate().
@@ -102,12 +97,4 @@ func (r *RepositoryImpl) GetTransactionsReport(username string, ctx context.Cont
 		Coins:        user.Coins,
 		Transactions: transactionModels,
 	}, nil
-}
-
-func isCheckError(err error) bool {
-	var pgErr *pgdriver.Error
-	if errors.As(err, &pgErr) {
-		return pgErr.Field('n') != ""
-	}
-	return false
 }

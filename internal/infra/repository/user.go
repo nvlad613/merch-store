@@ -29,8 +29,14 @@ func (r *RepositoryImpl) GetUser(username string, ctx context.Context) (*auth.Us
 
 func (r *RepositoryImpl) CreateUser(user auth.User, ctx context.Context) (int, error) {
 	var id int
+	userEntity := User{
+		Name:     user.Username,
+		PassHash: string(user.PasswordHash),
+		Coins:    user.Coins,
+	}
+
 	_, err := r.db.NewInsert().
-		Model(&user).
+		Model(&userEntity).
 		Returning("id").
 		Exec(ctx, &id)
 	if err != nil {

@@ -8,12 +8,12 @@ application:
     idle-timeout: 5
     shutdown-timeout: 3
     auth:
-      signing-algorithm: hs256
-      signing-key: ???
+      signing-algorithm: HS256
+      signing-key: 95EB8AAE6FC49C69A03F0A2C02AF2BA6F9806ADDABE16C6D4AB8A67ED1270612
       exp-sec: 1800
 
   db:
-    host: postgres
+    host: localhost
     port: 5432
     name: appdb
     tls-enabled: false

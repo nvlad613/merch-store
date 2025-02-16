@@ -14,6 +14,7 @@ import (
 	"merch-store/internal/domain/balance"
 	"merch-store/internal/domain/store"
 	"merch-store/pkg/httputil"
+	"strings"
 )
 
 type Server struct {
@@ -33,7 +34,7 @@ func NewServer(
 
 	jwtMiddlewareFunc := echojwt.WithConfig(echojwt.Config{
 		SigningKey:    []byte(conf.Auth.Key),
-		SigningMethod: conf.Auth.Method,
+		SigningMethod: strings.ToUpper(conf.Auth.Method),
 		ErrorHandler:  httputil.JwtErrorHandler,
 	})
 

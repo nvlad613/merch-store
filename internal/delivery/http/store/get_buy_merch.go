@@ -4,6 +4,7 @@ import (
 	"errors"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
+	"merch-store/internal/domain/balance"
 	"merch-store/internal/domain/store"
 	"merch-store/pkg/httputil"
 	"net/http"
@@ -45,7 +46,7 @@ func (r *Router) GetBuyMerchHandler(c echo.Context) error {
 		ctx,
 	)
 	switch {
-	case errors.Is(err, store.MerchItemNotFound):
+	case errors.Is(err, store.MerchItemNotFound), errors.Is(err, balance.NotEnoughCoinsError):
 		return httputil.SendError(http.StatusUnprocessableEntity, err.Error(), c)
 	case err != nil:
 		r.logger.Errorw(
