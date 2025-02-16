@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+      POSTGRES_DB: appdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - merch-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  liquibase:
+    build: cmd/liquibase
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - merch-network
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/appdb
+
+  merchstore:
+    build: .
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      MERCHSTORE_DB_HOST: postgres
+      MERCHSTORE_DB_PORT: 5432
+      MERCHSTORE_DB_AUTH_LOGIN: appuser
+      MERCHSTORE_DB_AUTH_PASSWORD: apppass
+      MERCHSTORE_DB_NAME: appdb
+      MERCHSTORE_SERVER_AUTH_SIGNING-KEY: 95EB8AAE6FC49C69A03F0A2C02AF2BA6F9806ADDABE16C6D4AB8A67ED1270612
+    networks:
+      - merch-network
+
+volumes:
+  postgres_data:
+
+networks:
+  merch-network:
+    driver: bridge
